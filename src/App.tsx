@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { AppShell } from './components/layout/AppShell'
-import { TaskPanelPlaceholder } from './components/layout/TaskPanelPlaceholder'
+import { TaskPanel } from './components/tasks/TaskPanel'
 import { TimerPanelPlaceholder } from './components/layout/TimerPanelPlaceholder'
 import { db } from './db/db'
 import { seed } from './db/seed'
@@ -35,7 +35,7 @@ export default function App() {
 
   return (
     <AppShell>
-      <TaskPanelPlaceholder />
+      <TaskPanel />
       <TimerPanelPlaceholder />
     </AppShell>
   )
