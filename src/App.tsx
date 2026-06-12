@@ -1,10 +1,10 @@
 import { useEffect, useState } from 'react'
 import { AppShell } from './components/layout/AppShell'
-import { TaskPanel } from './components/tasks/TaskPanel'
-import { TimerPanelPlaceholder } from './components/layout/TimerPanelPlaceholder'
+import { WorkspaceView } from './components/WorkspaceView'
 import { db } from './db/db'
 import { seed } from './db/seed'
 import { useSettingsStore } from './stores/useSettingsStore'
+import { useTimerStore } from './stores/useTimerStore'
 
 function useApplyTheme() {
   const theme = useSettingsStore((s) => s.settings.theme)
@@ -28,6 +28,8 @@ export default function App() {
   useEffect(() => {
     void seed(db)
       .then(hydrate)
+      // A session that finished while the app was closed gets finalized here.
+      .then(() => useTimerStore.getState().recover())
       .then(() => setReady(true))
   }, [hydrate])
 
@@ -35,8 +37,7 @@ export default function App() {
 
   return (
     <AppShell>
-      <TaskPanel />
-      <TimerPanelPlaceholder />
+      <WorkspaceView />
     </AppShell>
   )
 }

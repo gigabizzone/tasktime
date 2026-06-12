@@ -1,14 +1,5 @@
 import { useEffect, useState } from 'react'
-import {
-  DndContext,
-  PointerSensor,
-  closestCenter,
-  useSensor,
-  useSensors,
-  type DragEndEvent,
-} from '@dnd-kit/core'
 import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable'
-import { restrictToVerticalAxis } from '@dnd-kit/modifiers'
 import { useTaskStore, todosOf, doneOf } from '../../stores/useTaskStore'
 import { useSettingsStore } from '../../stores/useSettingsStore'
 import { useCategories } from '../../lib/useCategories'
@@ -22,7 +13,7 @@ import type { ID } from '../../types/models'
 export function TaskPanel() {
   const categories = useCategories()
   const dayStartHour = useSettingsStore((s) => s.settings.dayStartHour)
-  const { tasks, selectedId, loadDay, reorderTodo, moveBy, select } = useTaskStore()
+  const { tasks, selectedId, loadDay, moveBy, select } = useTaskStore()
   const [filter, setFilter] = useState<ID | null>(null)
   const [doneOpen, setDoneOpen] = useState(false)
 
@@ -43,15 +34,9 @@ export function TaskPanel() {
     return () => window.removeEventListener('keydown', onKey)
   }, [selectedId, moveBy])
 
-  const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 5 } }))
-
   const todos = todosOf(tasks)
   const done = doneOf(tasks)
   const visibleTodos = filter ? todos.filter((t) => t.categoryId === filter) : todos
-
-  const onDragEnd = ({ active, over }: DragEndEvent) => {
-    if (over && active.id !== over.id) void reorderTodo(String(active.id), String(over.id))
-  }
 
   return (
     <section
@@ -63,20 +48,13 @@ export function TaskPanel() {
       <FilterChips categories={categories} active={filter} onChange={setFilter} />
 
       <div className="flex min-h-0 flex-1 flex-col gap-1.5 overflow-y-auto" onClick={(e) => e.stopPropagation()}>
-        <DndContext
-          sensors={sensors}
-          collisionDetection={closestCenter}
-          modifiers={[restrictToVerticalAxis]}
-          onDragEnd={onDragEnd}
-        >
-          <SortableContext items={visibleTodos.map((t) => t.id)} strategy={verticalListSortingStrategy}>
-            <ul className="flex flex-col gap-1.5">
-              {visibleTodos.map((t) => (
-                <TaskCard key={t.id} task={t} categories={categories} selected={t.id === selectedId} />
-              ))}
-            </ul>
-          </SortableContext>
-        </DndContext>
+        <SortableContext items={visibleTodos.map((t) => t.id)} strategy={verticalListSortingStrategy}>
+          <ul className="flex flex-col gap-1.5">
+            {visibleTodos.map((t) => (
+              <TaskCard key={t.id} task={t} categories={categories} selected={t.id === selectedId} />
+            ))}
+          </ul>
+        </SortableContext>
 
         {visibleTodos.length === 0 && (
           <p className="py-6 text-center text-sm text-gray-400">

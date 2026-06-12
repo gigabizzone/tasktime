@@ -1,8 +1,10 @@
 import type { ReactNode } from 'react'
+import { useTodayStats } from '../../lib/useTodayStats'
 
 const VIEWS = ['Tasks', 'Calendar', 'Reports'] as const
 
 export function AppShell({ children }: { children: ReactNode }) {
+  const { streak } = useTodayStats()
   return (
     <div className="flex h-full flex-col bg-gray-50 text-gray-900 dark:bg-gray-950 dark:text-gray-100">
       <header className="flex items-center gap-4 border-b border-gray-200 bg-white px-4 py-2 dark:border-gray-800 dark:bg-gray-900">
@@ -26,7 +28,7 @@ export function AppShell({ children }: { children: ReactNode }) {
           ))}
         </nav>
         <div className="ml-auto flex items-center gap-3 text-sm text-gray-500 dark:text-gray-400">
-          <span title="Streak (M6)">🔥 0</span>
+          <span title="Current streak">🔥 {streak}</span>
           <button title="Settings (M6)" className="opacity-50">⚙</button>
           <button title="Theme (M6)" className="opacity-50">🌙</button>
         </div>
