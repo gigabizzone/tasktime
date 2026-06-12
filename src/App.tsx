@@ -1,10 +1,17 @@
 import { useEffect, useState } from 'react'
 import { AppShell } from './components/layout/AppShell'
 import { WorkspaceView } from './components/WorkspaceView'
+import { CalendarView } from './components/calendar/CalendarView'
+import { CommandBar } from './components/commandbar/CommandBar'
+import { CarryOverPrompt } from './components/CarryOverPrompt'
+import { Toast } from './components/layout/Toast'
+import { TimerTicker } from './components/timer/TimerTicker'
+import { TimerPill } from './components/timer/TimerPill'
 import { db } from './db/db'
 import { seed } from './db/seed'
 import { useSettingsStore } from './stores/useSettingsStore'
 import { useTimerStore } from './stores/useTimerStore'
+import { useViewStore } from './stores/useViewStore'
 
 function useApplyTheme() {
   const theme = useSettingsStore((s) => s.settings.theme)
@@ -23,6 +30,7 @@ function useApplyTheme() {
 export default function App() {
   const [ready, setReady] = useState(false)
   const hydrate = useSettingsStore((s) => s.hydrate)
+  const view = useViewStore((s) => s.view)
   useApplyTheme()
 
   useEffect(() => {
@@ -37,7 +45,12 @@ export default function App() {
 
   return (
     <AppShell>
-      <WorkspaceView />
+      {view === 'calendar' ? <CalendarView /> : <WorkspaceView />}
+      <TimerTicker />
+      <TimerPill />
+      <CommandBar />
+      <CarryOverPrompt />
+      <Toast />
     </AppShell>
   )
 }

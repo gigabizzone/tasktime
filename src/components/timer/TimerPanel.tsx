@@ -47,21 +47,7 @@ export function TimerPanel() {
   const progress = 1 - remaining / plannedMs
   const color = isBreak ? '#22C55E' : (category?.color ?? '#9CA3AF')
 
-  // Finalize the session the moment time runs out (F-2.4).
-  useEffect(() => {
-    if (running) void timer.checkCompletion(now)
-  }, [running, now, timer])
-
-  // Live countdown in the tab title, e.g. "(17:42) Send proposal — FocusFlow".
-  useEffect(() => {
-    document.title =
-      timer.status === 'idle'
-        ? 'FocusFlow'
-        : `(${formatClock(remaining)}) ${isBreak ? 'Break' : (task?.title ?? 'Focus')} — FocusFlow`
-    return () => {
-      document.title = 'FocusFlow'
-    }
-  }, [timer.status, remaining, isBreak, task?.title])
+  // Completion check + tab title live in the always-mounted TimerTicker.
 
   // Esc leaves focus mode (F-2.7).
   useEffect(() => {
