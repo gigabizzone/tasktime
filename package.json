@@ -18,9 +18,11 @@
     "date-fns": "^4.4.0",
     "dexie": "^4.4.3",
     "dexie-react-hooks": "^4.4.0",
+    "html-to-image": "^1.11.13",
     "nanoid": "^5.1.11",
     "react": "^19.2.6",
     "react-dom": "^19.2.6",
+    "recharts": "^3.8.1",
     "zustand": "^5.0.14"
   },
   "devDependencies": {

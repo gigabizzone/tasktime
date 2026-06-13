@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { AppShell } from './components/layout/AppShell'
 import { WorkspaceView } from './components/WorkspaceView'
 import { CalendarView } from './components/calendar/CalendarView'
+import { ReportsView } from './components/reports/ReportsView'
 import { CommandBar } from './components/commandbar/CommandBar'
 import { CarryOverPrompt } from './components/CarryOverPrompt'
 import { Toast } from './components/layout/Toast'
@@ -45,7 +46,7 @@ export default function App() {
 
   return (
     <AppShell>
-      {view === 'calendar' ? <CalendarView /> : <WorkspaceView />}
+      {view === 'calendar' ? <CalendarView /> : view === 'reports' ? <ReportsView /> : <WorkspaceView />}
       <TimerTicker />
       <TimerPill />
       <CommandBar />

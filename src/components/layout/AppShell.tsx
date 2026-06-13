@@ -5,7 +5,7 @@ import { useViewStore, type View } from '../../stores/useViewStore'
 const VIEWS: Array<{ key: View; label: string; enabled: boolean }> = [
   { key: 'tasks', label: 'Tasks', enabled: true },
   { key: 'calendar', label: 'Calendar', enabled: true },
-  { key: 'reports', label: 'Reports', enabled: false }, // M5
+  { key: 'reports', label: 'Reports', enabled: true },
 ]
 
 export function AppShell({ children }: { children: ReactNode }) {
