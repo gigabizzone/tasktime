@@ -128,7 +128,7 @@ export function CalendarView() {
 
   return (
     <DndContext sensors={sensors} collisionDetection={collisionDetection} onDragEnd={(e) => void onDragEnd(e)}>
-      <div className="flex min-h-0 w-full">
+      <div className="flex min-h-0 w-full flex-col md:flex-row">
         <section className="flex min-h-0 flex-[2] flex-col gap-3 overflow-y-auto p-4">
           <div className="flex items-center gap-2">
             <button onClick={() => step(-1)} aria-label="Previous" className="rounded-md px-2 py-1 hover:bg-gray-100 dark:hover:bg-gray-800">‹</button>

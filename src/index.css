@@ -2,6 +2,67 @@
 
 @custom-variant dark (&:where(.dark, .dark *));
 
+:root {
+  /* "Little bigger" base — Tailwind's rem-based sizes all scale up from here. */
+  font-size: 16.5px;
+  --ff-ring: 59 130 246; /* blue-500 */
+  font-family: 'Inter', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto,
+    Helvetica, Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
 html, body, #root {
   height: 100%;
+}
+
+body {
+  /* Slightly bolder default weight for a confident, modern feel. */
+  font-weight: 450;
+  letter-spacing: -0.006em;
+}
+
+h1, h2, h3, h4 {
+  letter-spacing: -0.018em;
+}
+
+/* Clear, consistent keyboard focus everywhere (accessibility pass). */
+:where(button, a, input, select, textarea, [tabindex]):focus-visible {
+  outline: 2px solid rgb(var(--ff-ring));
+  outline-offset: 2px;
+  border-radius: 6px;
+}
+
+@layer components {
+  /* Reusable button system — used by the refreshed navigation and M6 surfaces.
+     Each variant is self-contained (Tailwind v4 @apply can't chain component classes). */
+  .btn-primary {
+    @apply inline-flex items-center justify-center gap-2 rounded-xl px-3.5 py-2 text-sm font-semibold
+      transition-colors disabled:cursor-not-allowed disabled:opacity-50
+      bg-blue-500 text-white shadow-sm hover:bg-blue-600 active:bg-blue-700;
+  }
+  .btn-ghost {
+    @apply inline-flex items-center justify-center gap-2 rounded-xl px-3.5 py-2 text-sm font-semibold
+      transition-colors disabled:cursor-not-allowed disabled:opacity-50
+      text-gray-600 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800;
+  }
+  .btn-soft {
+    @apply inline-flex items-center justify-center gap-2 rounded-xl px-3.5 py-2 text-sm font-semibold
+      transition-colors disabled:cursor-not-allowed disabled:opacity-50
+      bg-gray-100 text-gray-700 hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-100 dark:hover:bg-gray-700;
+  }
+  .btn-danger {
+    @apply inline-flex items-center justify-center gap-2 rounded-xl px-3.5 py-2 text-sm font-semibold
+      transition-colors disabled:cursor-not-allowed disabled:opacity-50
+      bg-red-500 text-white hover:bg-red-600;
+  }
+
+  .card {
+    @apply rounded-2xl border border-gray-200 bg-white shadow-sm dark:border-gray-800 dark:bg-gray-900;
+  }
+
+  .field {
+    @apply rounded-xl border border-gray-300 bg-white px-3 py-2 text-sm outline-none
+      transition-shadow focus:ring-2 focus:ring-blue-400 dark:border-gray-700 dark:bg-gray-900;
+  }
 }

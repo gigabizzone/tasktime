@@ -38,12 +38,13 @@ export function QuickAdd({ categories }: { categories: Category[] }) {
 
   return (
     <input
+      id="quick-add-input"
       value={value}
       onChange={(e) => setValue(e.target.value)}
       onKeyDown={(e) => e.key === 'Enter' && submit()}
       placeholder="+ Add a task — try: Send proposal #business ~2"
       aria-label="Quick add task"
-      className="rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-blue-400 dark:border-gray-700 dark:bg-gray-900"
+      className="field"
     />
   )
 }

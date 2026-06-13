@@ -8,6 +8,7 @@ import { useNow } from '../../lib/useNow'
 import { formatClock } from '../../lib/format'
 import { todayKey } from '../../lib/dates'
 import { notify } from '../../lib/notify'
+import { playTick } from '../../lib/sound'
 import { toast } from '../../stores/useToastStore'
 
 /**
@@ -20,14 +21,32 @@ export function TimerTicker() {
   const type = useTimerStore((s) => s.type)
   const taskId = useTimerStore((s) => s.taskId)
   const checkCompletion = useTimerStore((s) => s.checkCompletion)
+  const ping = useTimerStore((s) => s.ping)
   const running = status === 'running'
   const now = useNow(running)
 
   const task = useLiveQuery(() => (taskId ? db.tasks.get(taskId) : undefined), [taskId])
 
   useEffect(() => {
-    if (running) void checkCompletion(now)
-  }, [running, now, checkCompletion])
+    if (running) {
+      ping(now) // detect sleep gaps before counting completion
+      void checkCompletion(now)
+    }
+  }, [running, now, checkCompletion, ping])
+
+  // Opt-in ticking sound on each whole second while focusing.
+  const tickEnabled = useSettingsStore((s) => s.settings.tickSoundEnabled)
+  const volume = useSettingsStore((s) => s.settings.soundVolume)
+  const lastTickSec = useRef(-1)
+  useEffect(() => {
+    if (!running || type !== 'break') {
+      const sec = Math.floor(now / 1000)
+      if (running && tickEnabled && type === 'focus' && sec !== lastTickSec.current) {
+        lastTickSec.current = sec
+        playTick(volume)
+      }
+    }
+  }, [running, type, now, tickEnabled, volume])
 
   // Live countdown in the tab title, e.g. "(17:42) Send proposal — FocusFlow".
   useEffect(() => {

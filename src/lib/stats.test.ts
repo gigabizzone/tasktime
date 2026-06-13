@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { calcStreak } from './stats'
+import { calcStreak, calcStreakWithFreezes, freezesAvailableThisWeek } from './stats'
 import { formatClock, formatMinutes } from './format'
 
 describe('calcStreak', () => {
@@ -26,6 +26,43 @@ describe('calcStreak', () => {
   it('crosses month boundaries', () => {
     const days = new Set(['2026-05-31', '2026-06-01'])
     expect(calcStreak(days, '2026-06-01')).toBe(2)
+  })
+})
+
+describe('calcStreakWithFreezes', () => {
+  it('matches the plain streak when there are no gaps', () => {
+    const days = new Set(['2026-06-10', '2026-06-11', '2026-06-12'])
+    expect(calcStreakWithFreezes(days, '2026-06-12')).toEqual({ streak: 3, frozenDays: [] })
+  })
+
+  it('bridges a single missed day with a freeze token', () => {
+    // missed Jun 11; active Jun 9, 10, 12
+    const days = new Set(['2026-06-09', '2026-06-10', '2026-06-12'])
+    const r = calcStreakWithFreezes(days, '2026-06-12')
+    expect(r.streak).toBe(3) // three active days, bridged across the gap
+    expect(r.frozenDays).toEqual(['2026-06-11'])
+  })
+
+  it('only allows one freeze per ISO week', () => {
+    // Mon-Sun 2026-06-08..14: active Mon, Wed, Fri (two gaps in one week)
+    const days = new Set(['2026-06-08', '2026-06-10', '2026-06-12'])
+    const r = calcStreakWithFreezes(days, '2026-06-12')
+    // from Fri back: freeze Thu (Jun 11), reach Wed; gap Tue needs a 2nd freeze
+    // in the same ISO week → blocked.
+    expect(r.streak).toBe(2)
+    expect(r.frozenDays).toEqual(['2026-06-11'])
+  })
+
+  it('does not bridge two consecutive missed days', () => {
+    const days = new Set(['2026-06-09', '2026-06-12'])
+    expect(calcStreakWithFreezes(days, '2026-06-12').streak).toBe(1)
+  })
+
+  it('reports freezes available in the current week', () => {
+    expect(freezesAvailableThisWeek([], '2026-06-12')).toBe(1)
+    expect(freezesAvailableThisWeek(['2026-06-11'], '2026-06-12')).toBe(0)
+    // a freeze used in a different week doesn't reduce this week's allowance
+    expect(freezesAvailableThisWeek(['2026-06-01'], '2026-06-12')).toBe(1)
   })
 })
 

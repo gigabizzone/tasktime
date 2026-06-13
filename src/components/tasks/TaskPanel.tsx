@@ -8,6 +8,7 @@ import { QuickAdd } from './QuickAdd'
 import { FilterChips } from './FilterChips'
 import { TaskCard } from './TaskCard'
 import { UndoToast } from './UndoToast'
+import { OnboardingBanner } from '../OnboardingBanner'
 import type { ID } from '../../types/models'
 
 export function TaskPanel() {
@@ -40,10 +41,11 @@ export function TaskPanel() {
 
   return (
     <section
-      className="flex w-[55%] flex-col gap-3 border-r border-gray-200 p-4 dark:border-gray-800"
+      className="flex w-full flex-col gap-3 border-gray-200 p-4 md:w-[55%] md:border-r dark:border-gray-800"
       onClick={() => select(null)}
     >
-      <h2 className="text-sm font-semibold text-gray-500 dark:text-gray-400">Today's Tasks</h2>
+      <h2 className="text-sm font-bold uppercase tracking-wide text-gray-400">Today's Tasks</h2>
+      <OnboardingBanner />
       <QuickAdd categories={categories} />
       <FilterChips categories={categories} active={filter} onChange={setFilter} />
 

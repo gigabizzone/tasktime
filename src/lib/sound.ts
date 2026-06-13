@@ -1,3 +1,26 @@
+/** A soft, short tick (opt-in metronome while focusing). */
+export function playTick(volume = 0.2): void {
+  try {
+    const Ctx =
+      window.AudioContext ??
+      (window as unknown as { webkitAudioContext?: typeof AudioContext }).webkitAudioContext
+    if (!Ctx) return
+    const ctx = new Ctx()
+    const osc = ctx.createOscillator()
+    const gain = ctx.createGain()
+    osc.type = 'square'
+    osc.frequency.value = 1000
+    gain.gain.setValueAtTime(volume * 0.5, ctx.currentTime)
+    gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.03)
+    osc.connect(gain).connect(ctx.destination)
+    osc.start()
+    osc.stop(ctx.currentTime + 0.03)
+    setTimeout(() => void ctx.close(), 100)
+  } catch {
+    // audio unavailable — stay silent
+  }
+}
+
 /** Two-tone completion chime via Web Audio — no asset files needed. */
 export function playChime(volume = 0.7): void {
   try {

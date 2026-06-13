@@ -45,7 +45,7 @@ export function DayPanel({ dayKey, tasks, categories, isPast, onClose }: Props) 
   }
 
   return (
-    <aside className="flex w-80 shrink-0 flex-col gap-3 overflow-y-auto border-l border-gray-200 p-4 dark:border-gray-800">
+    <aside className="flex w-full shrink-0 flex-col gap-3 overflow-y-auto border-t border-gray-200 p-4 md:w-80 md:border-l md:border-t-0 dark:border-gray-800">
       <div className="flex items-center justify-between">
         <h3 className="text-sm font-semibold">{format(parseISO(dayKey), 'EEEE, MMM d')}</h3>
         <button onClick={onClose} aria-label="Close day panel" className="rounded p-1 text-gray-400 hover:text-gray-600">✕</button>

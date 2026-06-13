@@ -45,6 +45,9 @@ interface TimerData {
 }
 
 interface TimerState extends TimerData {
+  // Runtime-only (never persisted): idle/sleep detection.
+  lastPingAt: number | null
+  idleAwayMs: number | null // set when a sleep gap is detected; drives the keep/trim prompt
   assignTask: (taskId: ID | null) => void
   setFocusMinutes: (minutes: number) => void
   setBreakMinutes: (minutes: number) => void
@@ -59,11 +62,17 @@ interface TimerState extends TimerData {
   addInterruption: (note?: string) => void
   /** Called on every tick; finalizes the session once time is up. */
   checkCompletion: (now?: number) => Promise<void>
+  /** Heartbeat from the ticker; detects a sleep gap and pauses to prompt keep/trim. */
+  ping: (now?: number) => void
+  /** Resolve the idle prompt: keep counts the away time, trim removes it. */
+  resolveIdle: (keep: boolean) => void
   /** Called once on boot: finalize a session that completed while the app was closed. */
   recover: () => Promise<void>
   advanceQueue: () => Promise<void>
   toggleFocusMode: (on?: boolean) => void
 }
+
+const IDLE_THRESHOLD_MS = 90_000 // a tick gap this large means the machine slept
 
 export function plannedMinutesOf(
   s: Pick<TimerData, 'type' | 'focusMinutes' | 'breakMinutes' | 'nextBreakIsLong'>,
@@ -171,6 +180,8 @@ export const useTimerStore = create<TimerState>()(
         interruptions: [],
         pendingPartial: null,
         focusMode: false,
+        lastPingAt: null,
+        idleAwayMs: null,
 
         assignTask: (taskId) => {
           if (get().status === 'idle') set({ taskId })
@@ -195,6 +206,7 @@ export const useTimerStore = create<TimerState>()(
             sessionStartISO: new Date(now).toISOString(),
             elapsedBeforePauseMs: 0,
             interruptions: [],
+            lastPingAt: now,
           })
           if (s.type === 'focus' && s.taskId) {
             void db.tasks
@@ -217,7 +229,8 @@ export const useTimerStore = create<TimerState>()(
 
         resume: () => {
           if (get().status !== 'paused') return
-          set({ status: 'running', startedAt: Date.now() })
+          const now = Date.now()
+          set({ status: 'running', startedAt: now, lastPingAt: now })
         },
 
         skip: async () => {
@@ -297,9 +310,37 @@ export const useTimerStore = create<TimerState>()(
 
         checkCompletion: async (now = Date.now()) => {
           const s = get()
-          if (s.status !== 'running' || remainingMsOf(s, now) > 0) return
+          if (s.status !== 'running' || s.idleAwayMs !== null || remainingMsOf(s, now) > 0) return
           if (s.type === 'focus') await completeFocus(now, { offerBreak: true })
           else await completeBreak(now, { advance: true })
+        },
+
+        ping: (now = Date.now()) => {
+          const s = get()
+          if (s.status !== 'running' || s.startedAt === null) return
+          if (s.lastPingAt !== null && now - s.lastPingAt > IDLE_THRESHOLD_MS) {
+            // A large gap between ticks means the machine slept — pause and ask
+            // before the away time silently counts as focus (value-add #6).
+            set({
+              status: 'paused',
+              elapsedBeforePauseMs: elapsedMsOf(s, now),
+              startedAt: null,
+              lastPingAt: null,
+              idleAwayMs: now - s.lastPingAt,
+            })
+            return
+          }
+          set({ lastPingAt: now })
+        },
+
+        resolveIdle: (keep) => {
+          const s = get()
+          if (s.idleAwayMs === null) return
+          const now = Date.now()
+          const elapsed = keep
+            ? s.elapsedBeforePauseMs
+            : Math.max(0, s.elapsedBeforePauseMs - s.idleAwayMs)
+          set({ idleAwayMs: null, status: 'running', startedAt: now, elapsedBeforePauseMs: elapsed, lastPingAt: now })
         },
 
         recover: async () => {

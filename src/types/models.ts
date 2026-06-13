@@ -56,6 +56,7 @@ export interface Settings {
   autoAdvanceQueue: boolean
   soundEnabled: boolean
   soundVolume: number // 0..1
+  tickSoundEnabled: boolean // off by default
   notificationsEnabled: boolean
   theme: Theme
   weekStartsOn: WeekStart
@@ -73,6 +74,7 @@ export const DEFAULT_SETTINGS: Settings = {
   autoAdvanceQueue: true,
   soundEnabled: true,
   soundVolume: 0.7,
+  tickSoundEnabled: false,
   notificationsEnabled: true,
   theme: 'system',
   weekStartsOn: 1,

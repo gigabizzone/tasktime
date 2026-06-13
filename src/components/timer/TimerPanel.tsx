@@ -207,7 +207,7 @@ export function TimerPanel() {
   }
 
   return (
-    <section className="flex w-[45%] min-w-0 flex-col items-center gap-4 overflow-y-auto p-4">
+    <section className="flex w-full min-w-0 flex-col items-center gap-4 overflow-y-auto p-4 md:w-[45%]">
       <ProgressStrip />
       <div
         ref={setNodeRef}
