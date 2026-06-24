@@ -7,6 +7,7 @@ export interface NewTaskInput {
   categoryId: ID
   estimatePomos?: number
   scheduledTime?: string
+  notes?: string
 }
 
 export async function fetchDay(dayKey: string): Promise<Task[]> {
@@ -26,6 +27,7 @@ export async function addTaskOn(dayKey: string, input: NewTaskInput): Promise<Ta
     status: 'todo',
     estimatePomos: input.estimatePomos,
     scheduledTime: input.scheduledTime,
+    notes: input.notes,
     plannedDate: dayKey,
     order: await nextOrder(dayKey),
     createdAt: new Date().toISOString(),
