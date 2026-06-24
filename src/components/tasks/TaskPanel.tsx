@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable'
+import { format, parseISO } from 'date-fns'
 import { useTaskStore, todosOf, doneOf } from '../../stores/useTaskStore'
 import { useSettingsStore } from '../../stores/useSettingsStore'
 import { useCategories } from '../../lib/useCategories'
@@ -39,12 +40,33 @@ export function TaskPanel() {
   const done = doneOf(tasks)
   const visibleTodos = filter ? todos.filter((t) => t.categoryId === filter) : todos
 
+  const today = parseISO(todayKey(dayStartHour))
+
   return (
     <section
       className="flex w-full flex-col gap-3 border-gray-200 p-4 md:w-[55%] md:border-r dark:border-gray-800"
       onClick={() => select(null)}
     >
-      <h2 className="text-sm font-bold uppercase tracking-wide text-gray-400">Today's Tasks</h2>
+      {/* Highlighted current day + date — the home screen's "you are here". */}
+      <div className="flex items-center gap-3">
+        <div className="flex h-12 w-12 shrink-0 flex-col items-center justify-center rounded-xl bg-blue-500 text-white shadow-sm">
+          <span className="text-[10px] font-bold uppercase leading-none tracking-wide">
+            {format(today, 'MMM')}
+          </span>
+          <span className="text-xl font-extrabold leading-none">{format(today, 'd')}</span>
+        </div>
+        <div className="min-w-0">
+          <h2 className="text-xl font-extrabold leading-tight tracking-tight">
+            {format(today, 'EEEE')}
+          </h2>
+          <p className="text-sm font-medium text-gray-500 dark:text-gray-400">
+            {format(today, 'MMMM d, yyyy')}
+          </p>
+        </div>
+        <span className="ml-auto rounded-full bg-blue-50 px-3 py-1 text-xs font-bold uppercase tracking-wide text-blue-600 dark:bg-blue-950 dark:text-blue-400">
+          Today
+        </span>
+      </div>
       <OnboardingBanner />
       <QuickAdd categories={categories} />
       <FilterChips categories={categories} active={filter} onChange={setFilter} />
